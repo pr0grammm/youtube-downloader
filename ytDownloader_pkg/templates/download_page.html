@@ -1,0 +1,87 @@
+
+{% extends 'landing_page.html' %}
+
+{% block content %}
+<style>
+body {background-color: #EDC7B7;}
+h1   {color: #AC3B61;}
+
+img {
+  display: block;
+  max-width:293px;
+  max-height:165px;
+  width: auto;
+  height: auto;
+}
+
+th {
+  height: 50px;
+  color: #EDC7B7;
+  background-color:#123C69 ;
+}
+
+th, td {
+  padding: 15px;
+  text-align: middle;
+}
+
+tbody , tbody > *{
+
+  font-size:25px;
+}
+
+.btn{
+
+	background-color: #AC3B61;
+}
+
+.din{
+
+  color:#123C69 ;
+}
+
+red{
+background-color: #AC3B61;
+}
+
+</style>
+
+<div class ="row">
+		<div class = "col-md-6 center-text">
+			<div w-100>
+				<img w-75 src ="{{Video_details.get('thumbnail_url',' ')}}" >
+				<div class = "title h4">{{Video_details.get('title',' ')}}</div>
+			</div>
+
+
+			
+		</div>
+		<div class = "col-md-6 center-text">
+			<div class="w-100">
+				{% if Available_streams %}
+				<div class="din">*Right click <red>Download</red> button and then save link as to download video</div>
+					<table class ="table-bordered w-100">
+						<thead>
+						<tr> <th>Quality</th><th>Format</th><th>Size<th>Download</th></tr>
+						</thead>
+						<tbody>
+						{% for stream in Available_streams %}
+							<tr>
+								<td>{{stream.get('quality',' ')}}</td>
+								<td>{{stream.get('format',' ')}}</td>
+								<td>{{stream.get('size',' ')}}</td>
+								<td><a href = "{{stream.get('url',' ')}}" role="button" class="btn btn-lg" download="{{Video_details.get('title',' ')}}">Download</a></td>
+							</tr>
+						{% endfor %}
+						</tbody>
+
+			
+
+
+					</table>
+				{% endif %}
+			</div>
+
+		</div>
+</div>
+{% endblock %}
