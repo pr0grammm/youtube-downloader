@@ -26,8 +26,8 @@ def download_page():
         if request.method == 'POST':
             data = request.form
             url = data['url']
-            (video_details, available_streams) = mp4conv.getSignedURL(url)
-            return render_template('download_page.html', Video_details = video_details, Available_streams = available_streams)
+            (option, available_streams) = mp4conv.getSignedURL(url)
+            return render_template('download_page.html', Option = option, Available_streams = available_streams)
     except Exception as e:
         return render_template('error.html',Error =str(e))
 

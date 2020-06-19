@@ -2,6 +2,9 @@
 {% extends 'landing_page.html' %}
 
 {% block content %}
+<script src ="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.1.0/jszip-utils.js"></script>
 <style>
 body {background-color: #EDC7B7;}
 h1   {color: #AC3B61;}
@@ -47,30 +50,35 @@ background-color: #AC3B61;
 </style>
 
 <div class ="row">
-		<div class = "col-md-6 center-text">
-			<div w-100>
-				<img w-75 src ="{{Video_details.get('thumbnail_url',' ')}}" >
-				<div class = "title h4">{{Video_details.get('title',' ')}}</div>
-			</div>
-
-
 			
 		</div>
-		<div class = "col-md-6 center-text">
+		<div class = "col-md-12 center-text">
 			<div class="w-100">
 				{% if Available_streams %}
+					{%if Option == "playlist" %}
+						<a role="button" class="btn btn-lg" onclick="dAll()" download>Download all videos in playlist</a>
+						<div class="progress hide" id="progress_bar">
+					    		<div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+					  		</div>
+						</div>
+
+						<p class="hide" id="result"></p>
+
+					{% endif %}
 				<div class="din">*Right click <red>Download</red> button and then save link as to download video</div>
 					<table class ="table-bordered w-100">
 						<thead>
-						<tr> <th>Quality</th><th>Format</th><th>Size<th>Download</th></tr>
+						<tr><th>Thumbnail</th><th>Title</th> <th>Quality</th><th>Format</th><th>Size<th>Download</th></tr>
 						</thead>
 						<tbody>
 						{% for stream in Available_streams %}
 							<tr>
+								<td><img src="{{stream.get('thumbnail_url',' ')}}"></td>
+								<td>{{stream.get('title',' ')}}</td>
 								<td>{{stream.get('quality',' ')}}</td>
 								<td>{{stream.get('format',' ')}}</td>
 								<td>{{stream.get('size',' ')}}</td>
-								<td><a href = "{{stream.get('url',' ')}}" role="button" class="btn btn-lg" download="{{Video_details.get('title',' ')}}">Download</a></td>
+								<td><a href = "{{stream.get('url',' ')}}" role="button" class="btn btn-lg download-button" download="{{stream.get('title',' ')}}">Download</a></td>
 							</tr>
 						{% endfor %}
 						</tbody>
@@ -84,4 +92,128 @@ background-color: #AC3B61;
 
 		</div>
 </div>
+<script>
+
+var Promise = window.Promise;
+if (!Promise) {
+    Promise = JSZip.external.Promise;
+}
+
+/**
+ * Fetch the content and return the associated promise.
+ * @param {String} url the url of the content to fetch.
+ * @return {Promise} the promise containing the data.
+ */
+function urlToPromise(url) {
+    return new Promise(function(resolve, reject) {
+        JSZipUtils.getBinaryContent(url, function (err, data) {
+            if(err) {
+                reject(err);
+            } else {
+                resolve(data);
+            }
+        });
+    });
+}
+
+
+function saveall(urls)
+{
+       
+var zipFilename = "zipFilename.zip";
+    var proxyUrl ="https://cors-anywhere.herokuapp.com/";
+    var zip = new JSZip();
+urls.forEach(function(url){
+const filename = url.substring(url.lastIndexOf('/'))+".mp4"
+  // loading a file and add it in a zip file
+	zip.file(filename, urlToPromise(proxyUrl+url), {binary:true});
+});
+
+
+  // when everything has been downloaded, we can trigger the dl
+    zip.generateAsync({type:"blob"}, function updateCallback(metadata) {
+        var msg = "progression : " + metadata.percent.toFixed(2) + " %";
+        if(metadata.currentFile) {
+            msg += ", current file = " + metadata.currentFile;
+        }
+        showMessage(msg);
+        updatePercent(metadata.percent|0);
+    })
+    .then(function callback(blob) {
+
+        // see FileSaver.js
+        saveAs(blob, "example.zip");
+
+        showMessage("done !");
+    }, function (e) {
+        showError(e);
+    });
+}
+
+function dAll() {
+        var  links = [];
+        var atags = document.getElementsByClassName("download-button");
+        for(var atag of atags){
+                links.push(atag.getAttribute("href")); // Click on the checkbox
+        }
+
+        console.log(links);
+        //saveToZip('project.zip',links)
+        resetMessage();
+        saveall(links);
+}
+
+
+
+
+
+/**
+ * Reset the message.
+ */
+function resetMessage () {
+    $("#result")
+    .removeClass()
+    .text("");
+}
+/**
+ * show a successful message.
+ * @param {String} text the text to show.
+ */
+function showMessage(text) {
+    resetMessage();
+    $("#result")
+    .addClass("alert alert-success")
+    .text(text);
+}
+/**
+ * show an error message.
+ * @param {String} text the text to show.
+ */
+function showError(text) {
+    resetMessage();
+    $("#result")
+    .addClass("alert alert-danger")
+    .text(text);
+}
+/**
+ * Update the progress bar.
+ * @param {Integer} percent the current percent
+ */
+function updatePercent(percent) {
+    $("#progress_bar").removeClass("hide")
+    .find(".progress-bar")
+    .attr("aria-valuenow", percent)
+    .css({
+        width : percent + "%"
+    });
+}
+/*
+if(!JSZip.support.blob) {
+    showError("This demo works only with a recent browser !");
+    return;
+}
+*/
+
+</script>
+
 {% endblock %}

@@ -1,5 +1,9 @@
-from pytube import YouTube
+from pytube import YouTube, Playlist
 from pprint import pprint
+import re
+
+playlist_regex = re.compile(r'^https://www\.youtube\.com/playlist\?list=.*$')
+video_regex = re.compile(r'https://www\.youtube\.com/watch\?v=.*')
 
 def human_readable(bytes):
     val = (bytes) / (1024*1024)
@@ -7,34 +11,63 @@ def human_readable(bytes):
 
 def getSignedURL(url:str):
     #url = 'https://www.youtube.com/watch?v=_hIZNaBH0lw&list=PL3tRBEVW0hiBSL5AIcxjbctIsKF_Az0ok'
-    video = YouTube(url)
 
-    #print(video.extract.video_info_url('8xg3vE8Ie_E', 'https://www.youtube.com/watch?v=8xg3vE8Ie_E'))
-    #all_progressive_streams = video.streams.filter(progressive = True, file_extension = 'mp4').order_by('resolution').desc()
-    #print(all_progressive_streams)
+   
+    if re.match(playlist_regex, url) is not None :
+        print("***PLAYLIST****\n");
+        playlist = Playlist(url)
+        title = playlist.title;
+        #thumbnail_url = playlist.thumbnail_url;
 
-    title = video.title;
-    thumbnail_url = video.thumbnail_url;
+        playlist_details = {'title': title, 'thumbnail_url':'thumbnail_url'}
+    
+        available_videos = []
+        for link in playlist.video_urls:
+            video = YouTube(link)
+            title = video.title;
+            thumbnail_url = video.thumbnail_url;
 
-    video_details = {'title': title, 'thumbnail_url':thumbnail_url}
+            video_details = {'title': title, 'thumbnail_url':thumbnail_url}
+            all_streams = video.streams
+            best_stream = all_streams.get_highest_resolution()
+            available_videos.append({**video_details, 'quality':best_stream.resolution, 'format':best_stream.subtype, 'size': human_readable(best_stream.filesize), 'url': best_stream.url})
+            pprint(available_videos)
 
-    all_streams = video.streams
+        return "playlist", available_videos
 
-    #all_progressive_mp4 = all_streams.filter(progressive = True, file_extension = 'mp4') 
 
-    best_stream = [all_streams.get_highest_resolution()]
+    elif re.match(video_regex, url) is not None:
+        video = YouTube(url)
 
-    available_streams  =[]
-    for stream in best_stream :
-        available_streams.append({'stream':stream,'quality':stream.resolution, 'format':stream.subtype, 'size': human_readable(stream.filesize), 'url': stream.url})
+        #print(video.extract.video_info_url('8xg3vE8Ie_E', 'https://www.youtube.com/watch?v=8xg3vE8Ie_E'))
+        #all_progressive_streams = video.streams.filter(progressive = True, file_extension = 'mp4').order_by('resolution').desc()
+        #print(all_progressive_streams)
 
-    #return best_stream.url
+        title = video.title;
+        thumbnail_url = video.thumbnail_url;
 
-    #best_stream.download()
+        video_details = {'title': title, 'thumbnail_url':thumbnail_url}
 
-    #print("finished downloading")
-    print(video_details, available_streams)
-    return video_details, available_streams
+        all_streams = video.streams
+
+        #all_progressive_mp4 = all_streams.filter(progressive = True, file_extension = 'mp4') 
+
+        best_stream = [all_streams.get_highest_resolution()]
+
+        available_streams  =[]
+        for stream in best_stream :
+            available_streams.append({**video_details, 'quality':stream.resolution, 'format':stream.subtype, 'size': human_readable(stream.filesize), 'url': stream.url})
+
+        #return best_stream.url
+
+        #best_stream.download()
+
+        #print("finished downloading")
+        print(video_details, available_streams)
+        return "video", available_streams
+
+    else:
+        return (None,) * 2
 
 if __name__ == '__main__':
 
