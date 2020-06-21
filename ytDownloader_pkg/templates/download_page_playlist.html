@@ -1,0 +1,90 @@
+
+{% extends 'landing_page.html' %}
+
+{% block content %}
+<style>
+body {background-color: #EDC7B7;}
+h1   {color: #AC3B61;}
+
+img {
+  display: block;
+  max-width:293px;
+  max-height:165px;
+  width: auto;
+  height: auto;
+}
+
+th {
+  height: 50px;
+  color: #EDC7B7;
+  background-color:#123C69 ;
+}
+
+th, td {
+  padding: 15px;
+  text-align: middle;
+}
+
+tbody , tbody > *{
+
+  font-size:25px;
+}
+
+.btn{
+
+	background-color: #AC3B61;
+}
+
+.din{
+
+  color:#123C69 ;
+}
+
+red{
+background-color: #AC3B61;
+}
+
+input[type=checkbox]
+{
+  -webkit-appearance:checkbox;
+}				
+
+</style>
+
+<div class ="row">
+			
+		</div>
+		<div class = "col-md-12 center-text">
+			<div class="w-100">
+				{% if Available_videos %}
+				<form action="/download" method="post">
+					<table class ="table-bordered w-100">
+						<thead>
+						<tr><th>&nbsp;</th><th>Thumbnail</th><th>Title</th> <th>Quality</th><th>Format</th><th>Size</tr>
+						</thead>
+						<tbody>
+						{% for video in Available_videos %}
+							<tr>
+								<td><input type="checkbox" name="video" value="{{video.get('link',' ')}}" class="" checked /></td>
+								<td><img src="{{video.get('thumbnail_url',' ')}}"></td>
+								<td>{{video.get('title',' ')}}</td>
+								<td>{{video.get('quality',' ')}}</td>
+								<td>{{video.get('format',' ')}}</td>
+								<td>{{video.get('size',' ')}}</td>
+							</tr>
+						{% endfor %}
+						</tbody>
+
+			
+
+
+					</table>
+
+					<button type ="submit" name="submit" value ="zip" role="button" class="btn btn-lg">Download selected videos</button>
+				</form>
+				{% endif %}
+			</div>
+
+		</div>
+</div>
+{% endblock %}
