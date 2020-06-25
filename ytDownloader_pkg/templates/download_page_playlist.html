@@ -47,6 +47,8 @@ background-color: #AC3B61;
 input[type=checkbox]
 {
   -webkit-appearance:checkbox;
+            width: 40px; 
+            height: 40px; 
 }				
 
 </style>
@@ -58,6 +60,8 @@ input[type=checkbox]
 			<div class="w-100">
 				{% if Available_videos %}
 				<form action="/download" method="post">
+					<label for="submit"/>
+					<button type ="submit" name="submit" value ="zip" role="button" class="btn btn-lg pull-right">Download selected videos</button>
 					<table class ="table-bordered w-100">
 						<thead>
 						<tr><th>&nbsp;</th><th>Thumbnail</th><th>Title</th> <th>Quality</th><th>Format</th><th>Size</tr>
@@ -80,7 +84,6 @@ input[type=checkbox]
 
 					</table>
 
-					<button type ="submit" name="submit" value ="zip" role="button" class="btn btn-lg">Download selected videos</button>
 				</form>
 				{% endif %}
 			</div>

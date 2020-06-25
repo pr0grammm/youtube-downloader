@@ -2,6 +2,9 @@ from ytDownloader_pkg import app
 from flask import render_template, request, send_from_directory
 from ytDownloader_pkg import mp4conv
 from flask_httpauth import HTTPBasicAuth
+
+playlists_path = "/home/reshma/playlists"
+
 '''
 auth = HTTPBasicAuth()
 
@@ -23,6 +26,7 @@ def landing_page():
 @app.route('/download', methods=['post'])
 def download_page():
     try:
+        mp4conv.remove_files()
         if request.method == 'POST':
             data = request.form
             if data['submit'] == "search":
@@ -42,7 +46,8 @@ def download_page():
 
 @app.route('/download-link/<uuid:filename>',methods=['get'])
 def download_file(filename):
-    directory = "/home/reshma/ytDownloader/playlists"
+    mp4conv.remove_files()
+    directory = playlists_path
     filename = str(filename)+".zip"
     return send_from_directory(directory = directory, filename = filename,as_attachment=True)
 

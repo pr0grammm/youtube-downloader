@@ -4,9 +4,11 @@ import re
 import uuid
 #import tempfile
 import shutil
+import time
 import os
 
-saveLocation = "playlists/"
+playlists_path="/home/reshma/playlists/"
+saveLocation = playlists_path
 playlist_regex = re.compile(r'^https://www\.youtube\.com/playlist\?list=.*$')
 video_regex = re.compile(r'https://www\.youtube\.com/watch\?v=.*')
 
@@ -83,8 +85,21 @@ def zip(links):
         best_stream = all_streams.get_highest_resolution()
         file_path=best_stream.download(output_path=loc, filename_prefix=str(i+1)+"_");
         print(file_path)
-    shutil.make_archive(loc,"zip","playlists/",dirname)
+    shutil.make_archive(loc,"zip",playlists_path,dirname)
+    shutil.rmtree(loc, ignore_errors=True, onerror=None)
     return dirname
+
+def remove_files():
+
+    path = playlists_path
+
+    now = time.time()
+
+    for f in os.listdir(path):
+        f = os.path.join(path, f)
+        if os.stat(f).st_ctime < now - (3 * 60):
+            if os.path.isfile(f):
+                os.remove(f)
 
 
 
